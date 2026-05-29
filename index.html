@@ -159,41 +159,76 @@
         <div class="grade-grid" id="gradeGrid">
           <div class="grade-group" style="border-color:#22c55e;">
             <div class="grade-group-title" style="color:#16a34a;">K – Grade 2</div>
-            <div class="grade-btn active" data-grade="k">K <small>Age 5-6 · Counting</small></div>
-            <div class="grade-btn" data-grade="1">G1 <small>Age 6-7 · Add/Sub</small></div>
-            <div class="grade-btn" data-grade="2">G2 <small>Age 7-8 · Add/Sub</small></div>
+            <div class="grade-btn active" data-grade="k">K <small>Age 5-6</small></div>
+            <div class="grade-btn" data-grade="1">G1 <small>Age 6-7</small></div>
+            <div class="grade-btn" data-grade="2">G2 <small>Age 7-8</small></div>
           </div>
           <div class="grade-group" style="border-color:#2563eb;">
             <div class="grade-group-title" style="color:#2563eb;">Grade 3 – 5</div>
-            <div class="grade-btn" data-grade="3">G3 <small>Age 8-9 · ×/÷ tables</small></div>
-            <div class="grade-btn" data-grade="4">G4 <small>Age 9-10 · Big numbers</small></div>
-            <div class="grade-btn" data-grade="5">G5 <small>Age 10-11 · Fractions</small></div>
+            <div class="grade-btn" data-grade="3">G3 <small>Age 8-9</small></div>
+            <div class="grade-btn" data-grade="4">G4 <small>Age 9-10</small></div>
+            <div class="grade-btn" data-grade="5">G5 <small>Age 10-11</small></div>
           </div>
           <div class="grade-group" style="border-color:#7c3aed;">
             <div class="grade-group-title" style="color:#7c3aed;">Grade 6 – 8</div>
-            <div class="grade-btn" data-grade="6">G6 <small>Age 11-12 · Negatives</small></div>
-            <div class="grade-btn" data-grade="7">G7 <small>Age 12-13 · Rational</small></div>
-            <div class="grade-btn" data-grade="8">G8 <small>Age 13-14 · Exponents</small></div>
+            <div class="grade-btn" data-grade="6">G6 <small>Age 11-12</small></div>
+            <div class="grade-btn" data-grade="7">G7 <small>Age 12-13</small></div>
+            <div class="grade-btn" data-grade="8">G8 <small>Age 13-14</small></div>
           </div>
         </div>
       </div>
 
       <div class="card">
-        <h2>Mode</h2>
-        <div class="mode-row" id="modeGrid">
-          <div class="mode-btn active" data-mode="practice">✏️ Practice</div>
-          <div class="mode-btn" data-mode="timed">⏱ Timed (60s)</div>
-          <div class="mode-btn" data-mode="pdf">📄 PDF Worksheet</div>
+        <h2>Activity Type</h2>
+        <div class="mode-row" id="activityGrid">
+          <div class="mode-btn active" data-activity="practice">✏️ Topic Practice</div>
+          <div class="mode-btn" data-activity="mixed">🎲 Mixed</div>
+          <div class="mode-btn" data-activity="test">📝 Mock Test</div>
+        </div>
+        <!-- Topic selector (shown for Topic Practice mode) -->
+        <div id="topicCard" style="margin-top:12px;">
+          <div class="ops-grid" id="opsGrid">
+            <div class="op-btn active" data-op="add">+ Add</div>
+            <div class="op-btn" data-op="sub">− Sub</div>
+            <div class="op-btn" data-op="mul">× Mul</div>
+            <div class="op-btn" data-op="div">÷ Div</div>
+            <div class="op-btn" data-op="frac">⅓ Fraction</div>
+            <div class="op-btn" data-op="neg">± Negative</div>
+            <div class="op-btn" data-op="exp">² Exponent</div>
+          </div>
         </div>
       </div>
 
       <div class="card" id="qcountCard">
-        <h2>Questions</h2>
+        <h2 id="qcountLabel">Questions</h2>
         <div class="qcount-row" id="qcountGrid">
           <div class="qcount-btn" data-q="10">10</div>
           <div class="qcount-btn active" data-q="20">20</div>
           <div class="qcount-btn" data-q="30">30</div>
           <div class="qcount-btn" data-q="50">50</div>
+        </div>
+      </div>
+
+      <div class="card" id="timedConfig" style="display:none;">
+        <h2>Test Settings</h2>
+        <div style="display:flex;gap:12px;">
+          <div style="flex:1;">
+            <label style="font-size:12px;font-weight:600;color:#475569;">Time Limit</label>
+            <select id="testTime" style="width:100%;padding:8px;border:1px solid #e2e8f0;border-radius:6px;font-size:13px;margin-top:4px;">
+              <option value="60">1 minute</option>
+              <option value="180" selected>3 minutes</option>
+              <option value="300">5 minutes</option>
+              <option value="600">10 minutes</option>
+            </select>
+          </div>
+          <div style="flex:1;">
+            <label style="font-size:12px;font-weight:600;color:#475569;">Questions</label>
+            <select id="testQcount" style="width:100%;padding:8px;border:1px solid #e2e8f0;border-radius:6px;font-size:13px;margin-top:4px;">
+              <option value="10">10</option>
+              <option value="20" selected>20</option>
+              <option value="30">30</option>
+            </select>
+          </div>
         </div>
       </div>
 
@@ -279,7 +314,7 @@
     // ─── State ────────────────────────────────────────────
     let currentOp = 'add';
     let currentGrade = 'k';
-    let currentMode = 'practice';
+    let currentActivity = 'practice';
     let currentQcount = 20;
 
     // Grade → difficulty mapping
@@ -313,7 +348,19 @@
     const qcountCard = document.getElementById('qcountCard');
     const pdfConfig = document.getElementById('pdfConfig');
 
-    // ─── Tab Selection ────────────────────────────────────
+    // ─── Activity Type Selection ──────────────────────────
+    document.querySelectorAll('#activityGrid .mode-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('#activityGrid .mode-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentActivity = btn.dataset.activity;
+        document.getElementById('topicCard').style.display = currentActivity === 'practice' ? 'block' : 'none';
+        document.getElementById('qcountCard').style.display = currentActivity === 'test' ? 'none' : 'block';
+        document.getElementById('timedConfig').style.display = currentActivity === 'test' ? 'block' : 'none';
+        document.getElementById('startBtn').textContent = currentActivity === 'test' ? 'Start Test →' : 'Start Practice →';
+      });
+    });
+
     document.querySelectorAll('#opsGrid .op-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         document.querySelectorAll('#opsGrid .op-btn').forEach(b => b.classList.remove('active'));
@@ -327,17 +374,6 @@
         document.querySelectorAll('#gradeGrid .grade-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
         currentGrade = btn.dataset.grade;
-      });
-    });
-
-    document.querySelectorAll('#modeGrid .mode-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        document.querySelectorAll('#modeGrid .mode-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        currentMode = btn.dataset.mode;
-        qcountCard.style.display = currentMode === 'pdf' ? 'none' : 'block';
-        pdfConfig.style.display = currentMode === 'pdf' ? 'block' : 'none';
-        document.getElementById('startBtn').textContent = currentMode === 'pdf' ? 'Generate PDF →' : 'Start Practice →';
       });
     });
 
@@ -468,10 +504,6 @@
 
     // ─── Start Practice ───────────────────────────────────
     document.getElementById('startBtn').addEventListener('click', () => {
-      if (currentMode === 'pdf') {
-        generatePDF();
-        return;
-      }
       startPractice();
     });
 
@@ -490,21 +522,33 @@
       resultScreen.classList.add('hidden');
       practiceScreen.classList.remove('hidden');
 
-      questions = generateQuestions(currentOp, currentGrade, currentQcount);
+      const isTest = currentActivity === 'test';
+      let qCount, timeLimit;
+      
+      if (isTest) {
+        qCount = parseInt(document.getElementById('testQcount').value);
+        timeLimit = parseInt(document.getElementById('testTime').value);
+      } else {
+        qCount = currentQcount;
+        timeLimit = 0;
+      }
+      
+      // For Topic Practice, use the selected op; for Mixed, use 'mix'
+      const useOp = currentActivity === 'practice' ? currentOp : 'mix';
+      questions = generateQuestions(useOp, currentGrade, qCount);
       currentQ = 0; correct = 0; wrong = 0;
-      isTimed = currentMode === 'timed';
-      timer = 60;
+      timer = timeLimit;
       startTime = Date.now();
 
       const timerEl = document.getElementById('timerDisplay');
-      if (isTimed) {
-        timerEl.textContent = '60';
+      if (isTest) {
+        timerEl.textContent = formatTime(timer);
         timerEl.className = 'timer';
         timerInterval = setInterval(() => {
           timer--;
-          timerEl.textContent = timer;
+          timerEl.textContent = formatTime(timer);
           if (timer <= 10) timerEl.className = 'timer danger';
-          else if (timer <= 20) timerEl.className = 'timer warning';
+          else if (timer <= 30) timerEl.className = 'timer warning';
           if (timer <= 0) endPractice();
         }, 1000);
       } else {
@@ -514,7 +558,13 @@
 
       updateStats();
       showQuestion();
-      trackEvent('practice_start', { tool: 'math_practice', op: currentOp, grade: currentGrade, mode: currentMode });
+      trackEvent('practice_start', { tool: 'math_practice', op: useOp, grade: currentGrade, activity: currentActivity });
+    }
+
+    function formatTime(secs) {
+      const m = Math.floor(secs / 60);
+      const s = secs % 60;
+      return m + ':' + (s < 10 ? '0' : '') + s;
     }
 
     function showQuestion() {
@@ -601,12 +651,12 @@
         currentQ++;
 
         setTimeout(() => {
-          if (currentQ < questions.length && (!isTimed || timer > 0)) {
+          if (currentQ < questions.length && (!isTest || timer > 0)) {
             showQuestion();
           } else {
             endPractice();
           }
-        }, isTimed ? 400 : 600);
+        }, isTest ? 400 : 600);
       }
     });
 
@@ -625,12 +675,20 @@
       const pct = total > 0 ? Math.round((correct / total) * 100) : 0;
       const elapsed = Math.round((Date.now() - startTime) / 1000);
 
-      document.getElementById('finalScore').textContent = pct + '%';
+      let gradeLabel = '';
+      if (currentActivity === 'test') {
+        if (pct >= 90) gradeLabel = '🌟 Excellent!';
+        else if (pct >= 75) gradeLabel = '👍 Great Job!';
+        else if (pct >= 60) gradeLabel = '💪 Keep Trying!';
+        else gradeLabel = '📚 More Practice Needed';
+      }
+
+      document.getElementById('finalScore').innerHTML = pct + '%' + (gradeLabel ? '<br><span style="font-size:18px;font-weight:500;">' + gradeLabel + '</span>' : '');
       document.getElementById('rCorrect').textContent = correct;
       document.getElementById('rWrong').textContent = wrong;
       document.getElementById('rTime').textContent = elapsed + 's';
 
-      trackEvent('practice_complete', { tool: 'math_practice', score: pct, correct, wrong, time: elapsed, op: currentOp, grade: currentGrade, mode: currentMode });
+      trackEvent('practice_complete', { tool: 'math_practice', score: pct, correct, wrong, time: elapsed, op: currentOp, grade: currentGrade, activity: currentActivity });
     }
 
     // ─── Share ────────────────────────────────────────────
