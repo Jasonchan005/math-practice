@@ -668,8 +668,8 @@
           fb.className = 'feedback wrong';
         }
 
-        updateStats();
         currentQ++;
+        updateStats();
 
         setTimeout(() => {
           if (currentQ < questions.length && (!isTestMode || timer > 0)) {
@@ -684,7 +684,7 @@
     function updateStats() {
       document.getElementById('statCorrect').textContent = correct;
       document.getElementById('statWrong').textContent = wrong;
-      document.getElementById('statTotal').textContent = currentQ;
+      document.getElementById('statTotal').textContent = correct + wrong;
     }
 
     function endPractice() {
