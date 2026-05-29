@@ -173,7 +173,7 @@
             <div class="grade-group-title" style="color:#7c3aed;">Grade 6 – 8</div>
             <div class="grade-btn" data-grade="6">G6 <small>Age 11-12 · Negatives</small></div>
             <div class="grade-btn" data-grade="7">G7 <small>Age 12-13 · Rational</small></div>
-            <div class="grade-btn" data-grade="8">G8 <small>Age 13-14 · Pre-algebra</small></div>
+            <div class="grade-btn" data-grade="8">G8 <small>Age 13-14 · Exponents</small></div>
           </div>
         </div>
       </div>
@@ -280,15 +280,15 @@
 
     // Grade → difficulty mapping
     const GRADE_CONFIG = {
-      k:  { min: 1, max: 10,  ops: ['add','sub'],       emoji: '🍎', label: 'Counting, basic add/sub' },
-      1:  { min: 1, max: 50,  ops: ['add','sub'],       emoji: '🐶', label: 'Add/sub within 50' },
-      2:  { min: 1, max: 100, ops: ['add','sub'],       emoji: '🌟', label: 'Add/sub within 100' },
-      3:  { min: 1, max: 100, ops: ['add','sub','mul','div','mix'], emoji: '🍕', label: 'Multiplication tables, division' },
-      4:  { min: 1, max: 1000,ops: ['add','sub','mul','div','mix'], emoji: '🚀', label: 'Multi-digit operations' },
-      5:  { min: 1, max: 1000,ops: ['add','sub','mul','div','mix'], emoji: '🌈', label: 'Multi-digit + fractions' },
-      6:  { min: 1, max: 1000,ops: ['add','sub','mul','div','mix'], emoji: '🎯', label: 'Negatives, ratios' },
-      7:  { min: 1, max: 1000,ops: ['add','sub','mul','div','mix'], emoji: '⚡', label: 'Rational numbers' },
-      8:  { min: 1, max: 1000,ops: ['add','sub','mul','div','mix'], emoji: '🏆', label: 'Pre-algebra, exponents' }
+      k:  { min: 1, max: 10,  ops: ['add','sub'],       emoji: '🍎', label: 'Counting, basic add/sub', subTypes: [] },
+      1:  { min: 1, max: 50,  ops: ['add','sub'],       emoji: '🐶', label: 'Add/sub within 50', subTypes: [] },
+      2:  { min: 1, max: 100, ops: ['add','sub'],       emoji: '🌟', label: 'Add/sub within 100', subTypes: [] },
+      3:  { min: 1, max: 100, ops: ['add','sub','mul','div','mix'], emoji: '🍕', label: 'Multiplication tables, division', subTypes: [] },
+      4:  { min: 1, max: 1000,ops: ['add','sub','mul','div','mix'], emoji: '🚀', label: 'Multi-digit operations', subTypes: [] },
+      5:  { min: 1, max: 1000,ops: ['add','sub','mul','div','mix','frac'], emoji: '🌈', label: 'Multi-digit + fractions', subTypes: ['fraction'] },
+      6:  { min: 1, max: 1000,ops: ['add','sub','mul','div','mix','frac','neg'], emoji: '🎯', label: 'Negatives, ratios', subTypes: ['negative'] },
+      7:  { min: 1, max: 1000,ops: ['add','sub','mul','div','mix','frac','neg'], emoji: '⚡', label: 'Rational numbers', subTypes: ['negative','fraction'] },
+      8:  { min: 1, max: 1000,ops: ['add','sub','mul','div','mix','frac','neg','exp'], emoji: '🏆', label: 'Pre-algebra, exponents', subTypes: ['exponent'] }
     };
 
     const EMOJIS = ['🍎','🍊','🍋','🍇','🍓','🍑','🍒','🫐','🥝','🍌','🌻','⭐','💎','🐱','🐶','🐰','🐼','🐸','🐧','🦋'];
@@ -350,6 +350,12 @@
       return Math.floor(Math.random() * (max - min + 1)) + min;
     }
 
+    function findGCD(a, b) {
+      a = Math.abs(a); b = Math.abs(b);
+      while (b) { const t = b; b = a % b; a = t; }
+      return a;
+    }
+
     function generateQuestion(op, grade) {
       let a, b, answer, displayOp;
       const cfg = GRADE_CONFIG[grade];
@@ -361,6 +367,51 @@
         op = allowedOps[Math.floor(Math.random() * allowedOps.length)];
       }
 
+      // Handle special sub-types for G5-G8
+      if (op === 'frac') {
+        // Fraction addition: a/b + c/d (simple fractions)
+        const denoms = [2, 3, 4, 5, 6, 8, 10];
+        const d1 = denoms[Math.floor(Math.random() * denoms.length)];
+        const d2 = denoms[Math.floor(Math.random() * denoms.length)];
+        const n1 = randomInt(1, d1 - 1);
+        const n2 = randomInt(1, d2 - 1);
+        // Display as fraction string
+        displayOp = '+';
+        // For simplicity, compute decimal answer for verification
+        const val1 = n1 / d1;
+        const val2 = n2 / d2;
+        answer = Math.round((val1 + val2) * 100) / 100;
+        return {
+          a: n1 + '/' + d1,
+          b: n2 + '/' + d2,
+          answer: answer,
+          op: '+',
+          display: 'fraction',
+          num1: n1, den1: d1, num2: n2, den2: d2,
+          val1: val1, val2: val2
+        };
+      }
+
+      if (op === 'neg') {
+        // Negative number addition/subtraction
+        const sign = Math.random() > 0.5 ? 1 : -1;
+        a = randomInt(1, max / 2) * sign;
+        b = randomInt(1, max / 2) * (Math.random() > 0.5 ? 1 : -1);
+        answer = a + b;
+        displayOp = '+';
+        return { a, b, answer, op: '+', display: 'negative' };
+      }
+
+      if (op === 'exp') {
+        // Simple exponent: 2^3 = 8
+        const base = randomInt(2, 10);
+        const exp = randomInt(2, 4);
+        answer = Math.pow(base, exp);
+        displayOp = '^';
+        return { a: base, b: exp, answer, op: '^', display: 'exponent' };
+      }
+
+      // Standard operations
       switch (op) {
         case 'add':
           a = randomInt(min, max);
@@ -389,7 +440,7 @@
           break;
       }
 
-      return { a, b, answer, op: displayOp };
+      return { a, b, answer, op: displayOp, display: 'normal' };
     }
 
     function generateQuestions(op, grade, count) {
@@ -456,16 +507,34 @@
       const q = questions[currentQ];
       const cfg = GRADE_CONFIG[currentGrade];
       
-      // Visual counters (emoji) — show up to 20 items
+      // Visual counters — only for K-G2 with normal numbers <= 20
       function renderVisual(count) {
+        if (q.display !== 'normal' || typeof count !== 'number' || count > 20) return '';
         const emoji = cfg.emoji;
-        if (count > 20) return count + ' ' + emoji;
         return EMOJIS.slice(0, count).join('');
       }
       
-      document.getElementById('visualRow1').innerHTML = renderVisual(q.a);
-      document.getElementById('visualRow2').innerHTML = renderVisual(q.b);
-      document.getElementById('qOp').textContent = q.op;
+      // Format display based on question type
+      let displayA, displayB, displayOp;
+      if (q.display === 'fraction') {
+        displayA = q.a;  // "3/4"
+        displayB = q.b;  // "1/2"
+        displayOp = q.op;
+      } else if (q.display === 'exponent') {
+        displayA = q.a + '<sup>' + q.b + '</sup>';
+        displayB = '';
+        displayOp = '';
+      } else {
+        displayA = q.a;
+        displayB = q.b;
+        displayOp = q.op;
+      }
+      
+      document.getElementById('visualRow1').innerHTML = renderVisual(q.display === 'normal' ? q.a : 0);
+      document.getElementById('visualRow2').innerHTML = renderVisual(q.display === 'normal' ? q.b : 0);
+      document.getElementById('qNum1').innerHTML = displayA;
+      document.getElementById('qOp').textContent = displayOp;
+      document.getElementById('qNum2').innerHTML = displayB;
       const input = document.getElementById('answerInput');
       input.value = '';
       input.className = '';
@@ -484,8 +553,24 @@
 
         const q = questions[currentQ];
         const fb = document.getElementById('feedback');
+        
+        let isCorrect = false;
+        let correctAnswer = q.answer;
+        
+        if (q.display === 'fraction') {
+          // Fraction: accept decimal answer with tolerance
+          isCorrect = Math.abs(val - q.answer) < 0.01;
+          // Also show fraction answer
+          // Find common denominator approach for display
+          const num = q.num1 * q.den2 + q.num2 * q.den1;
+          const den = q.den1 * q.den2;
+          const gcd = findGCD(num, den);
+          correctAnswer = (num/gcd) + '/' + (den/gcd) + ' (' + q.answer + ')';
+        } else {
+          isCorrect = val === q.answer;
+        }
 
-        if (val === q.answer) {
+        if (isCorrect) {
           correct++;
           input.className = 'correct';
           fb.textContent = '✅ Correct!';
@@ -493,7 +578,7 @@
         } else {
           wrong++;
           input.className = 'wrong';
-          fb.textContent = '❌ Answer: ' + q.answer;
+          fb.textContent = '❌ Answer: ' + correctAnswer;
           fb.className = 'feedback wrong';
         }
 
