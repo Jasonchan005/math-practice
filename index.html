@@ -368,7 +368,18 @@
 
       // If user selected an op not in this grade's range, use grade's default ops
       if (op === 'mix' || !allowedOps.includes(op)) {
-        op = allowedOps[Math.floor(Math.random() * allowedOps.length)];
+        // For G5+, occasionally generate special question types
+        const gradeNum = parseInt(grade);
+        if (gradeNum >= 5 && Math.random() < 0.3) {
+          // Pick a special type
+          const specials = [];
+          if (gradeNum >= 5) specials.push('frac');
+          if (gradeNum >= 6) specials.push('neg');
+          if (gradeNum >= 8) specials.push('exp');
+          op = specials[Math.floor(Math.random() * specials.length)];
+        } else {
+          op = allowedOps.filter(o => !['frac','neg','exp'].includes(o))[Math.floor(Math.random() * allowedOps.length)];
+        }
       }
 
       // Handle special sub-types for G5-G8
