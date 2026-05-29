@@ -316,6 +316,7 @@
     let currentGrade = 'k';
     let currentActivity = 'practice';
     let currentQcount = 20;
+    let isTestMode = false;
 
     // Grade → difficulty mapping
     const GRADE_CONFIG = {
@@ -348,6 +349,9 @@
     const qcountCard = document.getElementById('qcountCard');
     const pdfConfig = document.getElementById('pdfConfig');
 
+    // Initialize topic visibility
+    updateTopicButtons();
+
     // ─── Activity Type Selection ──────────────────────────
     document.querySelectorAll('#activityGrid .mode-btn').forEach(btn => {
       btn.addEventListener('click', () => {
@@ -374,8 +378,24 @@
         document.querySelectorAll('#gradeGrid .grade-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
         currentGrade = btn.dataset.grade;
+        updateTopicButtons();
       });
     });
+
+    function updateTopicButtons() {
+      const cfg = GRADE_CONFIG[currentGrade];
+      document.querySelectorAll('#opsGrid .op-btn').forEach(btn => {
+        const op = btn.dataset.op;
+        btn.style.display = cfg.ops.includes(op) ? 'block' : 'none';
+      });
+      // If current selection is hidden, switch to first visible
+      const firstVisible = document.querySelector('#opsGrid .op-btn[style*="block"], #opsGrid .op-btn:not([style*="none"])');
+      if (firstVisible && !document.querySelector('#opsGrid .op-btn.active[style*="block"]')) {
+        document.querySelectorAll('#opsGrid .op-btn').forEach(b => b.classList.remove('active'));
+        firstVisible.classList.add('active');
+        currentOp = firstVisible.dataset.op;
+      }
+    }
 
     document.querySelectorAll('#qcountGrid .qcount-btn').forEach(btn => {
       btn.addEventListener('click', () => {
@@ -523,6 +543,7 @@
       practiceScreen.classList.remove('hidden');
 
       const isTest = currentActivity === 'test';
+      isTestMode = isTest;
       let qCount, timeLimit;
       
       if (isTest) {
@@ -651,12 +672,12 @@
         currentQ++;
 
         setTimeout(() => {
-          if (currentQ < questions.length && (!isTest || timer > 0)) {
+          if (currentQ < questions.length && (!isTestMode || timer > 0)) {
             showQuestion();
           } else {
             endPractice();
           }
-        }, isTest ? 400 : 600);
+        }, isTestMode ? 400 : 600);
       }
     });
 
