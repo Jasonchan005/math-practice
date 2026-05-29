@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://math-practice.vercel.app/sitemap.xml

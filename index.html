@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-503ZSLGF0W"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-503ZSLGF0W');
+    function trackEvent(action, params) {
+      if (typeof gtag === 'function') gtag('event', action, params || {});
+    }
+  </script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Free Math Practice for Kids – Addition, Subtraction, Multiplication | MathPractice</title>
+  <meta name="description" content="Free math practice for kids K-12. Practice addition, subtraction, multiplication, and division. Timed tests, PDF worksheets, and progress tracking. No sign-up needed.">
+  <meta name="keywords" content="math practice, free math worksheets, addition practice, subtraction practice, multiplication practice, division practice, math for kids, math drills">
+  <meta property="og:title" content="Free Math Practice for Kids – Addition, Subtraction, Multiplication">
+  <meta property="og:description" content="Free math practice with timed tests, PDF worksheets, and progress tracking. No sign-up needed.">
+  <meta property="og:url" content="https://math-practice.vercel.app/">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="MathPractice">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Free Math Practice for Kids">
+  <meta name="twitter:description" content="Free math practice with timed tests, PDF worksheets. No sign-up.">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="canonical" href="https://math-practice.vercel.app/">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif; background: #f0fdf4; color: #1e293b; min-height: 100vh; }
+    .container { max-width: 640px; margin: 0 auto; padding: 16px; }
+    .header { text-align: center; padding: 28px 16px; background: linear-gradient(135deg, #059669, #10b981); border-radius: 16px; margin-bottom: 16px; color: white; }
+    .header h1 { font-size: 26px; font-weight: 800; margin-bottom: 4px; }
+    .header p { font-size: 13px; opacity: 0.9; }
+    .card { background: white; border-radius: 12px; padding: 20px; margin-bottom: 14px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+    .card h2 { font-size: 15px; font-weight: 600; margin-bottom: 12px; color: #475569; }
+
+    /* Operation selector */
+    .ops-grid { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr 1fr; gap: 6px; }
+    .op-btn { padding: 10px 6px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 13px; font-weight: 600; cursor: pointer; text-align: center; background: white; color: #64748b; transition: all 0.15s; }
+    .op-btn:hover { border-color: #059669; color: #059669; }
+    .op-btn.active { border-color: #059669; background: #f0fdf4; color: #059669; }
+
+    /* Difficulty selector */
+    .diff-row { display: flex; gap: 8px; }
+    .diff-btn { flex: 1; padding: 8px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; text-align: center; background: white; color: #64748b; transition: all 0.15s; }
+    .diff-btn:hover { border-color: #059669; }
+    .diff-btn.active { border-color: #059669; background: #f0fdf4; color: #059669; }
+    .diff-btn small { display: block; font-size: 10px; font-weight: 400; color: #94a3b8; margin-top: 2px; }
+
+    /* Mode selector */
+    .mode-row { display: flex; gap: 8px; }
+    .mode-btn { flex: 1; padding: 8px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; text-align: center; background: white; color: #64748b; transition: all 0.15s; }
+    .mode-btn:hover { border-color: #059669; }
+    .mode-btn.active { border-color: #059669; background: #f0fdf4; color: #059669; }
+
+    /* Question count selector */
+    .qcount-row { display: flex; gap: 6px; }
+    .qcount-btn { padding: 6px 14px; border: 2px solid #e2e8f0; border-radius: 6px; font-size: 12px; font-weight: 500; cursor: pointer; background: white; color: #64748b; transition: all 0.15s; }
+    .qcount-btn.active { border-color: #059669; background: #f0fdf4; color: #059669; }
+
+    /* Question area */
+    .question { text-align: center; padding: 24px 16px; }
+    .question .num { font-size: 48px; font-weight: 700; color: #1e293b; }
+    .question .op { font-size: 36px; font-weight: 700; color: #059669; margin: 0 12px; }
+    .question .eq { font-size: 36px; font-weight: 700; color: #64748b; }
+    .question .input-wrap { margin-top: 16px; }
+    .question .input-wrap input { width: 120px; padding: 12px; font-size: 28px; text-align: center; border: 3px solid #e2e8f0; border-radius: 10px; outline: none; font-weight: 700; }
+    .question .input-wrap input:focus { border-color: #059669; }
+    .question .input-wrap input.correct { border-color: #22c55e; background: #f0fdf4; }
+    .question .input-wrap input.wrong { border-color: #ef4444; background: #fef2f2; }
+
+    /* Stats */
+    .stats { display: flex; justify-content: center; gap: 24px; margin: 12px 0; }
+    .stat { text-align: center; }
+    .stat .num { font-size: 28px; font-weight: 700; color: #059669; }
+    .stat .label { font-size: 11px; color: #64748b; text-transform: uppercase; letter-spacing: 1px; }
+
+    /* Timer */
+    .timer { font-size: 36px; font-weight: 700; text-align: center; color: #059669; font-variant-numeric: tabular-nums; }
+    .timer.warning { color: #f59e0b; }
+    .timer.danger { color: #ef4444; }
+
+    /* Buttons */
+    .btn { padding: 12px 24px; border: none; border-radius: 10px; font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.15s; }
+    .btn-primary { background: #059669; color: white; width: 100%; }
+    .btn-primary:hover { background: #047857; }
+    .btn-start { background: #22c55e; color: white; width: 100%; padding: 14px; font-size: 17px; }
+    .btn-start:hover { background: #16a34a; }
+    .btn-share { background: #1da1f2; color: white; width: 100%; }
+    .btn-share:hover { background: #1a8cd8; }
+    .btn-outline { background: white; border: 2px solid #e2e8f0; color: #64748b; }
+    .btn-outline:hover { border-color: #059669; color: #059669; }
+    .btn-pdf { background: #dc2626; color: white; width: 100%; }
+    .btn-pdf:hover { background: #b91c1c; }
+    .btn-sm { padding: 8px 16px; font-size: 13px; }
+
+    /* Result */
+    .result-big { font-size: 56px; font-weight: 800; text-align: center; color: #059669; }
+    .result-details { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin: 16px 0; }
+    .detail-item { background: #f8fafc; border-radius: 8px; padding: 12px; text-align: center; }
+    .detail-item .num { font-size: 22px; font-weight: 700; color: #1e293b; }
+    .detail-item .label { font-size: 11px; color: #64748b; margin-top: 2px; }
+
+    .hidden { display: none; }
+    .tagline { text-align: center; font-size: 12px; color: #94a3b8; padding: 16px; }
+    .tagline a { color: #059669; text-decoration: none; }
+
+    /* PDF config */
+    .pdf-config { background: #f8fafc; border-radius: 8px; padding: 12px; margin: 12px 0; }
+    .pdf-config-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+    .pdf-config-row label { font-size: 12px; font-weight: 600; color: #475569; }
+    .pdf-config-row select, .pdf-config-row input { padding: 6px 8px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 12px; }
+
+    .feedback { font-size: 20px; font-weight: 700; text-align: center; margin-top: 8px; min-height: 30px; }
+    .feedback.correct { color: #22c55e; }
+    .feedback.wrong { color: #ef4444; }
+
+    @media (max-width: 480px) {
+      .header h1 { font-size: 22px; }
+      .question .num { font-size: 36px; }
+      .ops-grid { grid-template-columns: 1fr 1fr 1fr; }
+      .result-big { font-size: 40px; }
+      .result-details { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>🧮 Math Practice</h1>
+      <p>Free K-12 math practice — no sign-up needed</p>
+    </div>
+
+    <!-- Settings -->
+    <div id="settingsScreen">
+      <div class="card">
+        <h2>Operation</h2>
+        <div class="ops-grid" id="opsGrid">
+          <div class="op-btn active" data-op="add">+ Add</div>
+          <div class="op-btn" data-op="sub">− Sub</div>
+          <div class="op-btn" data-op="mul">× Mul</div>
+          <div class="op-btn" data-op="div">÷ Div</div>
+          <div class="op-btn" data-op="mix">🎲 Mix</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Difficulty</h2>
+        <div class="diff-row" id="diffGrid">
+          <div class="diff-btn active" data-diff="easy">Easy <small>Numbers 1-10</small></div>
+          <div class="diff-btn" data-diff="medium">Medium <small>Numbers 1-100</small></div>
+          <div class="diff-btn" data-diff="hard">Hard <small>Numbers 1-1000</small></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Mode</h2>
+        <div class="mode-row" id="modeGrid">
+          <div class="mode-btn active" data-mode="practice">✏️ Practice</div>
+          <div class="mode-btn" data-mode="timed">⏱ Timed (60s)</div>
+          <div class="mode-btn" data-mode="pdf">📄 PDF Worksheet</div>
+        </div>
+      </div>
+
+      <div class="card" id="qcountCard">
+        <h2>Questions</h2>
+        <div class="qcount-row" id="qcountGrid">
+          <div class="qcount-btn" data-q="10">10</div>
+          <div class="qcount-btn active" data-q="20">20</div>
+          <div class="qcount-btn" data-q="30">30</div>
+          <div class="qcount-btn" data-q="50">50</div>
+        </div>
+      </div>
+
+      <div class="card" id="pdfConfig" style="display:none;">
+        <h2>PDF Settings</h2>
+        <div class="pdf-config">
+          <div class="pdf-config-row">
+            <label>Questions:</label>
+            <select id="pdfQcount">
+              <option value="20">20</option>
+              <option value="30">30</option>
+              <option value="50" selected>50</option>
+              <option value="100">100</option>
+            </select>
+            <label>Columns:</label>
+            <select id="pdfCols">
+              <option value="2">2</option>
+              <option value="3" selected>3</option>
+              <option value="4">4</option>
+            </select>
+            <label>Title:</label>
+            <input type="text" id="pdfTitle" value="Math Practice Worksheet" style="flex:1;min-width:100px;">
+          </div>
+        </div>
+      </div>
+
+      <button class="btn btn-start" id="startBtn">Start Practice →</button>
+    </div>
+
+    <!-- Practice Screen -->
+    <div id="practiceScreen" class="hidden">
+      <div class="card">
+        <div class="timer" id="timerDisplay"></div>
+        <div class="question">
+          <div>
+            <span class="num" id="qNum1">0</span>
+            <span class="op" id="qOp">+</span>
+            <span class="num" id="qNum2">0</span>
+            <span class="eq">=</span>
+          </div>
+          <div class="input-wrap">
+            <input type="number" id="answerInput" autofocus>
+          </div>
+          <div class="feedback" id="feedback"></div>
+        </div>
+        <div class="stats">
+          <div class="stat"><div class="num" id="statCorrect">0</div><div class="label">Correct</div></div>
+          <div class="stat"><div class="num" id="statWrong">0</div><div class="label">Wrong</div></div>
+          <div class="stat"><div class="num" id="statTotal">0</div><div class="label">Total</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Result Screen -->
+    <div id="resultScreen" class="hidden">
+      <div class="card">
+        <div class="result-big" id="finalScore">0%</div>
+        <div class="result-details">
+          <div class="detail-item"><div class="num" id="rCorrect">0</div><div class="label">Correct</div></div>
+          <div class="detail-item"><div class="num" id="rWrong">0</div><div class="label">Wrong</div></div>
+          <div class="detail-item"><div class="num" id="rTime">0s</div><div class="label">Time</div></div>
+        </div>
+        <div style="display:flex;gap:8px;flex-direction:column;">
+          <button class="btn btn-start" id="retakeBtn">🔄 Practice Again</button>
+          <button class="btn btn-share" id="shareBtn">📤 Share Score</button>
+          <button class="btn btn-outline" id="settingsBtn">⚙️ Change Settings</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="tagline">
+      <a href="https://math-practice.vercel.app/">MathPractice</a> — Free math practice by JCS Labs
+    </div>
+  </div>
+
+  <script>
+    // ─── State ────────────────────────────────────────────
+    let currentOp = 'add';
+    let currentDiff = 'easy';
+    let currentMode = 'practice';
+    let currentQcount = 20;
+
+    let questions = [];
+    let currentQ = 0;
+    let correct = 0;
+    let wrong = 0;
+    let timer = 60;
+    let timerInterval = null;
+    let isTimed = false;
+    let startTime = null;
+
+    // ─── DOM refs ──────────────────────────────────────────
+    const settingsScreen = document.getElementById('settingsScreen');
+    const practiceScreen = document.getElementById('practiceScreen');
+    const resultScreen = document.getElementById('resultScreen');
+    const qcountCard = document.getElementById('qcountCard');
+    const pdfConfig = document.getElementById('pdfConfig');
+
+    // ─── Tab Selection ────────────────────────────────────
+    document.querySelectorAll('#opsGrid .op-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('#opsGrid .op-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentOp = btn.dataset.op;
+      });
+    });
+
+    document.querySelectorAll('#diffGrid .diff-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('#diffGrid .diff-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentDiff = btn.dataset.diff;
+      });
+    });
+
+    document.querySelectorAll('#modeGrid .mode-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('#modeGrid .mode-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentMode = btn.dataset.mode;
+        qcountCard.style.display = currentMode === 'pdf' ? 'none' : 'block';
+        pdfConfig.style.display = currentMode === 'pdf' ? 'block' : 'none';
+        document.getElementById('startBtn').textContent = currentMode === 'pdf' ? 'Generate PDF →' : 'Start Practice →';
+      });
+    });
+
+    document.querySelectorAll('#qcountGrid .qcount-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('#qcountGrid .qcount-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentQcount = parseInt(btn.dataset.q);
+      });
+    });
+
+    // ─── Question Generation ──────────────────────────────
+    function randomInt(min, max) {
+      return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    function generateQuestion(op, diff) {
+      let a, b, answer, displayOp;
+      const ranges = { easy: [1, 10], medium: [1, 100], hard: [1, 1000] };
+      const [min, max] = ranges[diff] || ranges.easy;
+
+      if (op === 'mix') {
+        const ops = ['add', 'sub', 'mul', 'div'];
+        op = ops[Math.floor(Math.random() * ops.length)];
+      }
+
+      switch (op) {
+        case 'add':
+          a = randomInt(min, max);
+          b = randomInt(min, max);
+          answer = a + b;
+          displayOp = '+';
+          break;
+        case 'sub':
+          a = randomInt(min, max);
+          b = randomInt(min, Math.min(a, max));
+          answer = a - b;
+          displayOp = '−';
+          break;
+        case 'mul':
+          a = randomInt(diff === 'easy' ? 1 : 2, diff === 'easy' ? 9 : 12);
+          b = randomInt(min, diff === 'hard' ? max : Math.min(20, max));
+          answer = a * b;
+          displayOp = '×';
+          break;
+        case 'div':
+          b = randomInt(diff === 'easy' ? 1 : 2, diff === 'easy' ? 9 : 12);
+          const quotient = randomInt(min, Math.min(20, max));
+          a = b * quotient;
+          answer = quotient;
+          displayOp = '÷';
+          break;
+      }
+
+      return { a, b, answer, op: displayOp };
+    }
+
+    function generateQuestions(op, diff, count) {
+      const qs = [];
+      for (let i = 0; i < count; i++) {
+        qs.push(generateQuestion(op, diff));
+      }
+      return qs;
+    }
+
+    // ─── Start Practice ───────────────────────────────────
+    document.getElementById('startBtn').addEventListener('click', () => {
+      if (currentMode === 'pdf') {
+        generatePDF();
+        return;
+      }
+      startPractice();
+    });
+
+    document.getElementById('retakeBtn').addEventListener('click', () => {
+      settingsScreen.classList.remove('hidden');
+      resultScreen.classList.add('hidden');
+    });
+
+    document.getElementById('settingsBtn').addEventListener('click', () => {
+      settingsScreen.classList.remove('hidden');
+      resultScreen.classList.add('hidden');
+    });
+
+    function startPractice() {
+      settingsScreen.classList.add('hidden');
+      resultScreen.classList.add('hidden');
+      practiceScreen.classList.remove('hidden');
+
+      questions = generateQuestions(currentOp, currentDiff, currentQcount);
+      currentQ = 0; correct = 0; wrong = 0;
+      isTimed = currentMode === 'timed';
+      timer = 60;
+      startTime = Date.now();
+
+      const timerEl = document.getElementById('timerDisplay');
+      if (isTimed) {
+        timerEl.textContent = '60';
+        timerEl.className = 'timer';
+        timerInterval = setInterval(() => {
+          timer--;
+          timerEl.textContent = timer;
+          if (timer <= 10) timerEl.className = 'timer danger';
+          else if (timer <= 20) timerEl.className = 'timer warning';
+          if (timer <= 0) endPractice();
+        }, 1000);
+      } else {
+        timerEl.textContent = '';
+        timerEl.className = 'timer';
+      }
+
+      updateStats();
+      showQuestion();
+      trackEvent('practice_start', { tool: 'math_practice', op: currentOp, diff: currentDiff, mode: currentMode });
+    }
+
+    function showQuestion() {
+      if (currentQ >= questions.length) { endPractice(); return; }
+      const q = questions[currentQ];
+      document.getElementById('qNum1').textContent = q.a;
+      document.getElementById('qOp').textContent = q.op;
+      document.getElementById('qNum2').textContent = q.b;
+      const input = document.getElementById('answerInput');
+      input.value = '';
+      input.className = '';
+      input.disabled = false;
+      input.focus();
+      document.getElementById('feedback').textContent = '';
+      document.getElementById('feedback').className = 'feedback';
+    }
+
+    document.getElementById('answerInput').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        const input = document.getElementById('answerInput');
+        const val = parseInt(input.value);
+        if (isNaN(val)) return;
+        input.disabled = true;
+
+        const q = questions[currentQ];
+        const fb = document.getElementById('feedback');
+
+        if (val === q.answer) {
+          correct++;
+          input.className = 'correct';
+          fb.textContent = '✅ Correct!';
+          fb.className = 'feedback correct';
+        } else {
+          wrong++;
+          input.className = 'wrong';
+          fb.textContent = '❌ Answer: ' + q.answer;
+          fb.className = 'feedback wrong';
+        }
+
+        updateStats();
+        currentQ++;
+
+        setTimeout(() => {
+          if (currentQ < questions.length && (!isTimed || timer > 0)) {
+            showQuestion();
+          } else {
+            endPractice();
+          }
+        }, isTimed ? 400 : 600);
+      }
+    });
+
+    function updateStats() {
+      document.getElementById('statCorrect').textContent = correct;
+      document.getElementById('statWrong').textContent = wrong;
+      document.getElementById('statTotal').textContent = currentQ;
+    }
+
+    function endPractice() {
+      clearInterval(timerInterval);
+      practiceScreen.classList.add('hidden');
+      resultScreen.classList.remove('hidden');
+
+      const total = correct + wrong;
+      const pct = total > 0 ? Math.round((correct / total) * 100) : 0;
+      const elapsed = Math.round((Date.now() - startTime) / 1000);
+
+      document.getElementById('finalScore').textContent = pct + '%';
+      document.getElementById('rCorrect').textContent = correct;
+      document.getElementById('rWrong').textContent = wrong;
+      document.getElementById('rTime').textContent = elapsed + 's';
+
+      trackEvent('practice_complete', { tool: 'math_practice', score: pct, correct, wrong, time: elapsed, op: currentOp, diff: currentDiff, mode: currentMode });
+    }
+
+    // ─── Share ────────────────────────────────────────────
+    document.getElementById('shareBtn').addEventListener('click', () => {
+      const score = document.getElementById('finalScore').textContent;
+      const c = document.getElementById('rCorrect').textContent;
+      const w = document.getElementById('rWrong').textContent;
+      const text = `🧮 I scored ${score} on Math Practice (${c} correct, ${w} wrong)! Can you beat my score?\n\nhttps://math-practice.vercel.app/`;
+
+      if (navigator.share) {
+        navigator.share({ title: 'My Math Practice Score', text }).catch(() => {});
+      } else {
+        navigator.clipboard.writeText(text).then(() => {
+          alert('📋 Score copied! Share with friends.');
+        }).catch(() => {
+          window.open('https://twitter.com/intent/tweet?text=' + encodeURIComponent(text), '_blank');
+        });
+      }
+      trackEvent('share_score', { tool: 'math_practice', score });
+    });
+
+    // ─── PDF Generation ───────────────────────────────────
+    function generatePDF() {
+      const count = parseInt(document.getElementById('pdfQcount').value);
+      const cols = parseInt(document.getElementById('pdfCols').value);
+      const title = document.getElementById('pdfTitle').value || 'Math Practice Worksheet';
+      const opNames = { add: 'Addition', sub: 'Subtraction', mul: 'Multiplication', div: 'Division', mix: 'Mixed Operations' };
+      const diffNames = { easy: 'Easy', medium: 'Medium', hard: 'Hard' };
+
+      const qs = generateQuestions(currentOp, currentDiff, count);
+      const { jsPDF } = window.jspdf;
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      const pageW = 210;
+      const pageH = 297;
+      const margin = 15;
+      const usableW = pageW - margin * 2;
+      const usableH = pageH - margin * 2;
+
+      // Title
+      pdf.setFontSize(16);
+      pdf.text(title, pageW / 2, 20, { align: 'center' });
+      pdf.setFontSize(10);
+      pdf.text(opNames[currentOp] + ' — ' + diffNames[currentDiff], pageW / 2, 27, { align: 'center' });
+
+      // Questions
+      const colW = usableW / cols;
+      const startY = 35;
+      const rowH = 14;
+      const rowsPerPage = Math.floor((usableH - startY + margin) / rowH);
+
+      pdf.setFontSize(12);
+      let x = margin;
+      let y = startY;
+
+      for (let i = 0; i < qs.length; i++) {
+        const q = qs[i];
+        const col = i % cols;
+        const row = Math.floor(i / cols);
+
+        if (row > 0 && row % rowsPerPage === 0 && col === 0) {
+          pdf.addPage();
+          y = margin;
+        }
+
+        x = margin + col * colW;
+        y = startY + (row % rowsPerPage) * rowH;
+
+        const text = (i + 1) + '.  ' + q.a + '  ' + q.op + '  ' + q.b + '  =  ____';
+        pdf.text(text, x, y);
+      }
+
+      // Answer key
+      pdf.addPage();
+      pdf.setFontSize(14);
+      pdf.text('Answer Key', pageW / 2, 20, { align: 'center' });
+      pdf.setFontSize(10);
+
+      let ay = 30;
+      for (let i = 0; i < qs.length; i++) {
+        const q = qs[i];
+        pdf.text((i + 1) + '.  ' + q.a + ' ' + q.op + ' ' + q.b + ' = ' + q.answer, margin, ay);
+        ay += 7;
+        if (ay > 280) { pdf.addPage(); ay = 20; }
+      }
+
+      pdf.save('math-practice-worksheet.pdf');
+      trackEvent('pdf_generated', { tool: 'math_practice', op: currentOp, diff: currentDiff, question_count: count });
+    }
+  </script>
+</body>
+</html>
