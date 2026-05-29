@@ -44,12 +44,18 @@
     .op-btn:hover { border-color: #059669; color: #059669; }
     .op-btn.active { border-color: #059669; background: #f0fdf4; color: #059669; }
 
-    /* Difficulty selector */
-    .diff-row { display: flex; gap: 8px; }
-    .diff-btn { flex: 1; padding: 8px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; text-align: center; background: white; color: #64748b; transition: all 0.15s; }
-    .diff-btn:hover { border-color: #059669; }
-    .diff-btn.active { border-color: #059669; background: #f0fdf4; color: #059669; }
-    .diff-btn small { display: block; font-size: 10px; font-weight: 400; color: #94a3b8; margin-top: 2px; }
+    /* Grade selector */
+    .grade-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; }
+    .grade-group { border: 2px solid #e2e8f0; border-radius: 10px; padding: 8px; }
+    .grade-group-title { font-size: 11px; font-weight: 600; color: #64748b; text-align: center; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .grade-btn { display: block; width: 100%; padding: 6px; border: 1px solid transparent; border-radius: 6px; font-size: 12px; font-weight: 500; cursor: pointer; text-align: center; background: white; color: #475569; margin-bottom: 3px; transition: all 0.1s; }
+    .grade-btn:hover { border-color: #059669; color: #059669; }
+    .grade-btn.active { border-color: #059669; background: #f0fdf4; color: #059669; font-weight: 600; }
+    .grade-btn small { display: block; font-size: 10px; font-weight: 400; color: #94a3b8; }
+
+    /* Visual counters */
+    .visual-row { display: flex; justify-content: center; gap: 4px; flex-wrap: wrap; margin: 8px 0; min-height: 32px; }
+    .visual-item { font-size: 22px; line-height: 1; }
 
     /* Mode selector */
     .mode-row { display: flex; gap: 8px; }
@@ -149,11 +155,26 @@
       </div>
 
       <div class="card">
-        <h2>Difficulty</h2>
-        <div class="diff-row" id="diffGrid">
-          <div class="diff-btn active" data-diff="easy">Easy <small>Numbers 1-10</small></div>
-          <div class="diff-btn" data-diff="medium">Medium <small>Numbers 1-100</small></div>
-          <div class="diff-btn" data-diff="hard">Hard <small>Numbers 1-1000</small></div>
+        <h2>Grade Level</h2>
+        <div class="grade-grid" id="gradeGrid">
+          <div class="grade-group" style="border-color:#22c55e;">
+            <div class="grade-group-title" style="color:#16a34a;">K – Grade 2</div>
+            <div class="grade-btn active" data-grade="k">K <small>Age 5-6</small></div>
+            <div class="grade-btn" data-grade="1">G1 <small>Age 6-7</small></div>
+            <div class="grade-btn" data-grade="2">G2 <small>Age 7-8</small></div>
+          </div>
+          <div class="grade-group" style="border-color:#2563eb;">
+            <div class="grade-group-title" style="color:#2563eb;">Grade 3 – 5</div>
+            <div class="grade-btn" data-grade="3">G3 <small>Age 8-9</small></div>
+            <div class="grade-btn" data-grade="4">G4 <small>Age 9-10</small></div>
+            <div class="grade-btn" data-grade="5">G5 <small>Age 10-11</small></div>
+          </div>
+          <div class="grade-group" style="border-color:#7c3aed;">
+            <div class="grade-group-title" style="color:#7c3aed;">Grade 6 – 8</div>
+            <div class="grade-btn" data-grade="6">G6 <small>Age 11-12</small></div>
+            <div class="grade-btn" data-grade="7">G7 <small>Age 12-13</small></div>
+            <div class="grade-btn" data-grade="8">G8 <small>Age 13-14</small></div>
+          </div>
         </div>
       </div>
 
@@ -207,10 +228,12 @@
       <div class="card">
         <div class="timer" id="timerDisplay"></div>
         <div class="question">
+          <div class="visual-row" id="visualRow1"></div>
           <div>
-            <span class="num" id="qNum1">0</span>
             <span class="op" id="qOp">+</span>
-            <span class="num" id="qNum2">0</span>
+          </div>
+          <div class="visual-row" id="visualRow2"></div>
+          <div>
             <span class="eq">=</span>
           </div>
           <div class="input-wrap">
@@ -251,9 +274,24 @@
   <script>
     // ─── State ────────────────────────────────────────────
     let currentOp = 'add';
-    let currentDiff = 'easy';
+    let currentGrade = 'k';
     let currentMode = 'practice';
     let currentQcount = 20;
+
+    // Grade → difficulty mapping
+    const GRADE_CONFIG = {
+      k:  { min: 1, max: 10, ops: ['add','sub'], emoji: '🍎' },
+      1:  { min: 1, max: 20, ops: ['add','sub'], emoji: '🐶' },
+      2:  { min: 1, max: 50, ops: ['add','sub','mix'], emoji: '🌟' },
+      3:  { min: 1, max: 100, ops: ['add','sub','mul','mix'], emoji: '🍕' },
+      4:  { min: 1, max: 100, ops: ['add','sub','mul','div','mix'], emoji: '🚀' },
+      5:  { min: 1, max: 500, ops: ['add','sub','mul','div','mix'], emoji: '🌈' },
+      6:  { min: 1, max: 1000, ops: ['add','sub','mul','div','mix'], emoji: '🎯' },
+      7:  { min: 1, max: 1000, ops: ['add','sub','mul','div','mix'], emoji: '⚡' },
+      8:  { min: 1, max: 1000, ops: ['add','sub','mul','div','mix'], emoji: '🏆' }
+    };
+
+    const EMOJIS = ['🍎','🍊','🍋','🍇','🍓','🍑','🍒','🫐','🥝','🍌','🌻','⭐','💎','🐱','🐶','🐰','🐼','🐸','🐧','🦋'];
 
     let questions = [];
     let currentQ = 0;
@@ -280,11 +318,11 @@
       });
     });
 
-    document.querySelectorAll('#diffGrid .diff-btn').forEach(btn => {
+    document.querySelectorAll('#gradeGrid .grade-btn').forEach(btn => {
       btn.addEventListener('click', () => {
-        document.querySelectorAll('#diffGrid .diff-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('#gradeGrid .grade-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
-        currentDiff = btn.dataset.diff;
+        currentGrade = btn.dataset.grade;
       });
     });
 
@@ -312,14 +350,15 @@
       return Math.floor(Math.random() * (max - min + 1)) + min;
     }
 
-    function generateQuestion(op, diff) {
+    function generateQuestion(op, grade) {
       let a, b, answer, displayOp;
-      const ranges = { easy: [1, 10], medium: [1, 100], hard: [1, 1000] };
-      const [min, max] = ranges[diff] || ranges.easy;
+      const cfg = GRADE_CONFIG[grade];
+      const { min, max } = cfg;
+      const allowedOps = cfg.ops;
 
-      if (op === 'mix') {
-        const ops = ['add', 'sub', 'mul', 'div'];
-        op = ops[Math.floor(Math.random() * ops.length)];
+      // If user selected an op not in this grade's range, use grade's default ops
+      if (op === 'mix' || !allowedOps.includes(op)) {
+        op = allowedOps[Math.floor(Math.random() * allowedOps.length)];
       }
 
       switch (op) {
@@ -336,14 +375,14 @@
           displayOp = '−';
           break;
         case 'mul':
-          a = randomInt(diff === 'easy' ? 1 : 2, diff === 'easy' ? 9 : 12);
-          b = randomInt(min, diff === 'hard' ? max : Math.min(20, max));
+          a = randomInt(2, parseInt(grade) >= 6 ? 15 : parseInt(grade) >= 3 ? 12 : 9);
+          b = randomInt(min, Math.min(max, parseInt(grade) >= 6 ? 20 : 12));
           answer = a * b;
           displayOp = '×';
           break;
         case 'div':
-          b = randomInt(diff === 'easy' ? 1 : 2, diff === 'easy' ? 9 : 12);
-          const quotient = randomInt(min, Math.min(20, max));
+          b = randomInt(2, parseInt(grade) >= 6 ? 15 : 9);
+          const quotient = randomInt(min, Math.min(max, 20));
           a = b * quotient;
           answer = quotient;
           displayOp = '÷';
@@ -353,10 +392,10 @@
       return { a, b, answer, op: displayOp };
     }
 
-    function generateQuestions(op, diff, count) {
+    function generateQuestions(op, grade, count) {
       const qs = [];
       for (let i = 0; i < count; i++) {
-        qs.push(generateQuestion(op, diff));
+        qs.push(generateQuestion(op, grade));
       }
       return qs;
     }
@@ -385,7 +424,7 @@
       resultScreen.classList.add('hidden');
       practiceScreen.classList.remove('hidden');
 
-      questions = generateQuestions(currentOp, currentDiff, currentQcount);
+      questions = generateQuestions(currentOp, currentGrade, currentQcount);
       currentQ = 0; correct = 0; wrong = 0;
       isTimed = currentMode === 'timed';
       timer = 60;
@@ -409,15 +448,24 @@
 
       updateStats();
       showQuestion();
-      trackEvent('practice_start', { tool: 'math_practice', op: currentOp, diff: currentDiff, mode: currentMode });
+      trackEvent('practice_start', { tool: 'math_practice', op: currentOp, grade: currentGrade, mode: currentMode });
     }
 
     function showQuestion() {
       if (currentQ >= questions.length) { endPractice(); return; }
       const q = questions[currentQ];
-      document.getElementById('qNum1').textContent = q.a;
+      const cfg = GRADE_CONFIG[currentGrade];
+      
+      // Visual counters (emoji) — show up to 20 items
+      function renderVisual(count) {
+        const emoji = cfg.emoji;
+        if (count > 20) return count + ' ' + emoji;
+        return EMOJIS.slice(0, count).join('');
+      }
+      
+      document.getElementById('visualRow1').innerHTML = renderVisual(q.a);
+      document.getElementById('visualRow2').innerHTML = renderVisual(q.b);
       document.getElementById('qOp').textContent = q.op;
-      document.getElementById('qNum2').textContent = q.b;
       const input = document.getElementById('answerInput');
       input.value = '';
       input.className = '';
@@ -482,7 +530,7 @@
       document.getElementById('rWrong').textContent = wrong;
       document.getElementById('rTime').textContent = elapsed + 's';
 
-      trackEvent('practice_complete', { tool: 'math_practice', score: pct, correct, wrong, time: elapsed, op: currentOp, diff: currentDiff, mode: currentMode });
+      trackEvent('practice_complete', { tool: 'math_practice', score: pct, correct, wrong, time: elapsed, op: currentOp, grade: currentGrade, mode: currentMode });
     }
 
     // ─── Share ────────────────────────────────────────────
@@ -510,9 +558,10 @@
       const cols = parseInt(document.getElementById('pdfCols').value);
       const title = document.getElementById('pdfTitle').value || 'Math Practice Worksheet';
       const opNames = { add: 'Addition', sub: 'Subtraction', mul: 'Multiplication', div: 'Division', mix: 'Mixed Operations' };
-      const diffNames = { easy: 'Easy', medium: 'Medium', hard: 'Hard' };
+      const diffNames = { k: 'Kindergarten', 1: 'Grade 1', 2: 'Grade 2', 3: 'Grade 3', 4: 'Grade 4', 5: 'Grade 5', 6: 'Grade 6', 7: 'Grade 7', 8: 'Grade 8' };
 
-      const qs = generateQuestions(currentOp, currentDiff, count);
+      const gradeNames = { k: 'Grade K', 1: 'Grade 1', 2: 'Grade 2', 3: 'Grade 3', 4: 'Grade 4', 5: 'Grade 5', 6: 'Grade 6', 7: 'Grade 7', 8: 'Grade 8' };
+      const qs = generateQuestions(currentOp, currentGrade, count);
       const { jsPDF } = window.jspdf;
       const pdf = new jsPDF('p', 'mm', 'a4');
       const pageW = 210;
@@ -525,7 +574,7 @@
       pdf.setFontSize(16);
       pdf.text(title, pageW / 2, 20, { align: 'center' });
       pdf.setFontSize(10);
-      pdf.text(opNames[currentOp] + ' — ' + diffNames[currentDiff], pageW / 2, 27, { align: 'center' });
+      pdf.text(opNames[currentOp] + ' — ' + diffNames[currentGrade], pageW / 2, 27, { align: 'center' });
 
       // Questions
       const colW = usableW / cols;
@@ -569,7 +618,7 @@
       }
 
       pdf.save('math-practice-worksheet.pdf');
-      trackEvent('pdf_generated', { tool: 'math_practice', op: currentOp, diff: currentDiff, question_count: count });
+      trackEvent('pdf_generated', { tool: 'math_practice', op: currentOp, grade: currentGrade, question_count: count });
     }
   </script>
 </body>
