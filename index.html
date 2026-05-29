@@ -159,21 +159,21 @@
         <div class="grade-grid" id="gradeGrid">
           <div class="grade-group" style="border-color:#22c55e;">
             <div class="grade-group-title" style="color:#16a34a;">K – Grade 2</div>
-            <div class="grade-btn active" data-grade="k">K <small>Age 5-6</small></div>
-            <div class="grade-btn" data-grade="1">G1 <small>Age 6-7</small></div>
-            <div class="grade-btn" data-grade="2">G2 <small>Age 7-8</small></div>
+            <div class="grade-btn active" data-grade="k">K <small>Age 5-6 · Counting</small></div>
+            <div class="grade-btn" data-grade="1">G1 <small>Age 6-7 · Add/Sub</small></div>
+            <div class="grade-btn" data-grade="2">G2 <small>Age 7-8 · Add/Sub</small></div>
           </div>
           <div class="grade-group" style="border-color:#2563eb;">
             <div class="grade-group-title" style="color:#2563eb;">Grade 3 – 5</div>
-            <div class="grade-btn" data-grade="3">G3 <small>Age 8-9</small></div>
-            <div class="grade-btn" data-grade="4">G4 <small>Age 9-10</small></div>
-            <div class="grade-btn" data-grade="5">G5 <small>Age 10-11</small></div>
+            <div class="grade-btn" data-grade="3">G3 <small>Age 8-9 · ×/÷ tables</small></div>
+            <div class="grade-btn" data-grade="4">G4 <small>Age 9-10 · Big numbers</small></div>
+            <div class="grade-btn" data-grade="5">G5 <small>Age 10-11 · Fractions</small></div>
           </div>
           <div class="grade-group" style="border-color:#7c3aed;">
             <div class="grade-group-title" style="color:#7c3aed;">Grade 6 – 8</div>
-            <div class="grade-btn" data-grade="6">G6 <small>Age 11-12</small></div>
-            <div class="grade-btn" data-grade="7">G7 <small>Age 12-13</small></div>
-            <div class="grade-btn" data-grade="8">G8 <small>Age 13-14</small></div>
+            <div class="grade-btn" data-grade="6">G6 <small>Age 11-12 · Negatives</small></div>
+            <div class="grade-btn" data-grade="7">G7 <small>Age 12-13 · Rational</small></div>
+            <div class="grade-btn" data-grade="8">G8 <small>Age 13-14 · Pre-algebra</small></div>
           </div>
         </div>
       </div>
@@ -280,15 +280,15 @@
 
     // Grade → difficulty mapping
     const GRADE_CONFIG = {
-      k:  { min: 1, max: 10, ops: ['add','sub'], emoji: '🍎' },
-      1:  { min: 1, max: 20, ops: ['add','sub'], emoji: '🐶' },
-      2:  { min: 1, max: 50, ops: ['add','sub','mix'], emoji: '🌟' },
-      3:  { min: 1, max: 100, ops: ['add','sub','mul','mix'], emoji: '🍕' },
-      4:  { min: 1, max: 100, ops: ['add','sub','mul','div','mix'], emoji: '🚀' },
-      5:  { min: 1, max: 500, ops: ['add','sub','mul','div','mix'], emoji: '🌈' },
-      6:  { min: 1, max: 1000, ops: ['add','sub','mul','div','mix'], emoji: '🎯' },
-      7:  { min: 1, max: 1000, ops: ['add','sub','mul','div','mix'], emoji: '⚡' },
-      8:  { min: 1, max: 1000, ops: ['add','sub','mul','div','mix'], emoji: '🏆' }
+      k:  { min: 1, max: 10,  ops: ['add','sub'],       emoji: '🍎', label: 'Counting, basic add/sub' },
+      1:  { min: 1, max: 50,  ops: ['add','sub'],       emoji: '🐶', label: 'Add/sub within 50' },
+      2:  { min: 1, max: 100, ops: ['add','sub'],       emoji: '🌟', label: 'Add/sub within 100' },
+      3:  { min: 1, max: 100, ops: ['add','sub','mul','div','mix'], emoji: '🍕', label: 'Multiplication tables, division' },
+      4:  { min: 1, max: 1000,ops: ['add','sub','mul','div','mix'], emoji: '🚀', label: 'Multi-digit operations' },
+      5:  { min: 1, max: 1000,ops: ['add','sub','mul','div','mix'], emoji: '🌈', label: 'Multi-digit + fractions' },
+      6:  { min: 1, max: 1000,ops: ['add','sub','mul','div','mix'], emoji: '🎯', label: 'Negatives, ratios' },
+      7:  { min: 1, max: 1000,ops: ['add','sub','mul','div','mix'], emoji: '⚡', label: 'Rational numbers' },
+      8:  { min: 1, max: 1000,ops: ['add','sub','mul','div','mix'], emoji: '🏆', label: 'Pre-algebra, exponents' }
     };
 
     const EMOJIS = ['🍎','🍊','🍋','🍇','🍓','🍑','🍒','🫐','🥝','🍌','🌻','⭐','💎','🐱','🐶','🐰','🐼','🐸','🐧','🦋'];
@@ -375,8 +375,8 @@
           displayOp = '−';
           break;
         case 'mul':
-          a = randomInt(2, parseInt(grade) >= 6 ? 15 : parseInt(grade) >= 3 ? 12 : 9);
-          b = randomInt(min, Math.min(max, parseInt(grade) >= 6 ? 20 : 12));
+          a = randomInt(2, grade === '3' ? 9 : grade === '4' ? 12 : grade === '5' ? 15 : 20);
+          b = randomInt(min, Math.min(max, grade === '3' ? 9 : grade === '4' ? 12 : 20));
           answer = a * b;
           displayOp = '×';
           break;
